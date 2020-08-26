@@ -133,10 +133,15 @@ class WavePlus():
                 sys.exit(1)
         
         # Connect to device
-        if (self.periph is None):
-            self.periph = Peripheral(self.MacAddr)
-        if (self.curr_val_char is None):
-            self.curr_val_char = self.periph.getCharacteristics(uuid=self.uuid)[0]
+        try:
+            if (self.periph is None):
+                self.periph = Peripheral(self.MacAddr)
+            if (self.curr_val_char is None):
+                self.curr_val_char = self.periph.getCharacteristics(uuid=self.uuid)[0]
+        except BTLEExcpetion:
+            return False;
+        
+        return True;    
         
     def read(self):
         if (self.curr_val_char is None):
@@ -218,29 +223,30 @@ try:
         
     while True:
         
-        waveplus.connect()
+        if (waveplus.connect()):
         
-        # read values
-        sensors = waveplus.read()
+            # read values
+            sensors = waveplus.read()
         
-        # extract
-        humidity     = str(sensors.getValue(SENSOR_IDX_HUMIDITY))             + " " + str(sensors.getUnit(SENSOR_IDX_HUMIDITY))
-        radon_st_avg = str(sensors.getValue(SENSOR_IDX_RADON_SHORT_TERM_AVG)) + " " + str(sensors.getUnit(SENSOR_IDX_RADON_SHORT_TERM_AVG))
-        radon_lt_avg = str(sensors.getValue(SENSOR_IDX_RADON_LONG_TERM_AVG))  + " " + str(sensors.getUnit(SENSOR_IDX_RADON_LONG_TERM_AVG))
-        temperature  = str(sensors.getValue(SENSOR_IDX_TEMPERATURE))          + " " + str(sensors.getUnit(SENSOR_IDX_TEMPERATURE))
-        pressure     = str(sensors.getValue(SENSOR_IDX_REL_ATM_PRESSURE))     + " " + str(sensors.getUnit(SENSOR_IDX_REL_ATM_PRESSURE))
-        CO2_lvl      = str(sensors.getValue(SENSOR_IDX_CO2_LVL))              + " " + str(sensors.getUnit(SENSOR_IDX_CO2_LVL))
-        VOC_lvl      = str(sensors.getValue(SENSOR_IDX_VOC_LVL))              + " " + str(sensors.getUnit(SENSOR_IDX_VOC_LVL))
+            # extract
+            humidity     = str(sensors.getValue(SENSOR_IDX_HUMIDITY))             + " " + str(sensors.getUnit(SENSOR_IDX_HUMIDITY))
+            radon_st_avg = str(sensors.getValue(SENSOR_IDX_RADON_SHORT_TERM_AVG)) + " " + str(sensors.getUnit(SENSOR_IDX_RADON_SHORT_TERM_AVG))
+            radon_lt_avg = str(sensors.getValue(SENSOR_IDX_RADON_LONG_TERM_AVG))  + " " + str(sensors.getUnit(SENSOR_IDX_RADON_LONG_TERM_AVG))
+            temperature  = str(sensors.getValue(SENSOR_IDX_TEMPERATURE))          + " " + str(sensors.getUnit(SENSOR_IDX_TEMPERATURE))
+            pressure     = str(sensors.getValue(SENSOR_IDX_REL_ATM_PRESSURE))     + " " + str(sensors.getUnit(SENSOR_IDX_REL_ATM_PRESSURE))
+            CO2_lvl      = str(sensors.getValue(SENSOR_IDX_CO2_LVL))              + " " + str(sensors.getUnit(SENSOR_IDX_CO2_LVL))
+            VOC_lvl      = str(sensors.getValue(SENSOR_IDX_VOC_LVL))              + " " + str(sensors.getUnit(SENSOR_IDX_VOC_LVL))
         
-        # Print data
-        data = [humidity, radon_st_avg, radon_lt_avg, temperature, pressure, CO2_lvl, VOC_lvl]
+            # Print data
+            data = [humidity, radon_st_avg, radon_lt_avg, temperature, pressure, CO2_lvl, VOC_lvl]
         
-        if (Mode=='terminal'):
-            print tableprint.row(data, width=12)
-        elif (Mode=='pipe'):
-            print data
+            if (Mode=='terminal'):
+                print tableprint.row(data, width=12)
+            elif (Mode=='pipe'):
+                print data
         
-        waveplus.disconnect()
+            waveplus.disconnect()
+        
         
         time.sleep(SamplePeriod)
             
