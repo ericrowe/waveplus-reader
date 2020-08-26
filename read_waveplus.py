@@ -138,7 +138,7 @@ class WavePlus():
                 self.periph = Peripheral(self.MacAddr)
             if (self.curr_val_char is None):
                 self.curr_val_char = self.periph.getCharacteristics(uuid=self.uuid)[0]
-        except BTLEExcpetion:
+        else:
             return False;
         
         return True;    
